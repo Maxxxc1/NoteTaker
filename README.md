@@ -29,10 +29,10 @@ User must first opent the webpage using PORT 3001 by running node server.js. Onc
 ![alt text](<Screenshot 2024-05-13 at 2.11.49 PM.png>)
 
 # Links
+Repo: https://maxxxc1.github.io/NoteTaker/
 
-Repo:
+Heroku:  
 
-Heroku:
 
 # Credits
 Max C.
