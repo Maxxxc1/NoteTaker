@@ -2,8 +2,11 @@ const express = require('express');
 const path = require('path');
 const uniqid = require('./helper/uniqid');
 const app = express();
-const notes = require('./db/db.json')
+const notes = require('./db/db.json');
 const fs = require('fs');
+const util = require('util');
+const readFileAsync = util.promisify(fs.readFile);
+const writeFileAsync = util.promisify(fs.writeFile);
 const PORT = process.env.PORT || 3001;
 
 // middleware (config/setup code)
@@ -14,30 +17,26 @@ app.use(express.urlencoded({ extended: true }))
 app.use(express.static('public'))
 
 // routes
-app.get('/', function(request, response) {
-    console.log("Request Object: ", request);
-
+app.get('/notes', (req, res) => {
    
-    response.sendFile(path.join(__dirname, './public/index.html'))
+    res.sendFile(path.join(__dirname, '/public/notes.html'))
 })
-// app.get('/api/notes', function(request, response) {
-//     //console.log("Request Object: ", request);
-//    fs.readFile("./db/db.json", "utf-8",(err, data) =>{
-//     if (err) {
-//         console.error(err)
-//         response.status(404).json({message: 'Information not found'});
-//         return;
-//     }
-//     const notes = JSON.parse(data)
-//     response.send(notes)
-//    } )
 
-
-// })
-app.get('/notes', function(request, response) {
-    //console.log("Request Object: ", request);
-    response.sendFile(path.join(__dirname, './public/notes.html'))
-})
+app.get('/api/notes', (req, res) => {
+  fs.readFile('./db/db.json', 'utf-8', (err, data) => {
+    if(err) {
+      console.error(err)
+      response.status(404).json({message:'Definition not found'})
+      return; 
+      
+    } else {
+      const note = JSON.parse(data)
+      console.log("response: ", note )
+      res.send(note)
+    
+    }
+  })
+});
 
 app.post('/api/notes' , (req, res) => {
   const {title, text} = req.body;
@@ -47,18 +46,29 @@ app.post('/api/notes' , (req, res) => {
         text,
         id: uniqid()
     
-    }
+    };
     notes.push(newNote)
     const noteString = JSON.stringify(notes)
-    console.log(noteString)
+    console.log('NoteString;', noteString)
+    fs.writeFile("./db/db.json", noteString, (err)=> {
+      if(err) {
+        console.error 
+        res.status(500).json('Note cannot be saved') 
+      } else {
+        console.log(`Note Saved ${newNote.title}`)
+        const response = {
+        status: "Success",
+        body: newNote,
+        }
+        console.log(response)
+        res.status(200).json(response)
+      }
+    })
   }
 })
 
-//app.put()?
-///////////////////////
-
-
-//app.delete()?
-
+app.get("*", (req, res) => {
+  res.status(404).json({ msg: "No Resource Found"})
+})
 // Start our sever listening 
 app.listen(PORT,  () => console.log(`Server listening on PORT: ${PORT}`))

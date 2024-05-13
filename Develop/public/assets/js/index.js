@@ -29,13 +29,22 @@ const hide = (elem) => {
 let activeNote = {};
 
 const getNotes = () =>
-  fetch('/api/notes', {
+  fetch('/api/notes', {  // we have async method (PROMISE) .then() .catch()
     method: 'GET',
     headers: {
       'Content-Type': 'application/json'
     }
   });
 
+  //fetch(urlRequest)
+  //  .then(response => response.json())
+  //  .then(data => console.log(data))
+  //  .catch(err => console.log(err))
+
+
+ // let result = getNotes()
+
+ // console.log("results: ", result)
 const saveNote = (note) =>
   fetch('/api/notes', {
     method: 'POST',
@@ -45,6 +54,7 @@ const saveNote = (note) =>
     body: JSON.stringify(note)
   } 
   );
+
 const deleteNote = (id) =>
   fetch(`/api/notes/${id}`, {
     method: 'DELETE',
@@ -129,7 +139,10 @@ const handleRenderBtns = () => {
 
 // Render the list of note titles
 const renderNoteList = async (notes) => {
+  console.log("returned data: ", notes);
   let jsonNotes = await notes.json();
+  console.log("Data: ", jsonNotes);
+
   if (window.location.pathname === '/notes') {
     noteList.forEach((el) => (el.innerHTML = ''));
   }
